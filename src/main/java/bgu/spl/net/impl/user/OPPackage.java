@@ -5,6 +5,12 @@ public class OPPackage{
     private String firstArg;
     private String secondArg;
 
+    public OPPackage() {
+        this.OPCode = 0;
+        this.firstArg = "";
+        this.secondArg = "";
+    }
+
     public OPPackage(int OPCode, String firstArg, String secondArg) {
         this.OPCode = OPCode;
         this.firstArg = firstArg;
