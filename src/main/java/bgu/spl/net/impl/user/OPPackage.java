@@ -18,19 +18,21 @@ public class OPPackage{
     public final short OP_ERROR = 13;
 
     private short OPCode;
-    private String firstArg;
-    private String secondArg;
+
+    private short firstArg_Short;
+    private String firstArg_Str;
+    private String secondArg_Str;
 
     public OPPackage() {
         this.OPCode = 0;
-        this.firstArg = "";
-        this.secondArg = "";
+        this.firstArg_Str = "";
+        this.secondArg_Str = "";
     }
 
-    public OPPackage(short OPCode, String firstArg, String secondArg) {
+    public OPPackage(short OPCode, short firstArg_Short,String firstArg, String secondArg) {
         this.OPCode = OPCode;
-        this.firstArg = firstArg;
-        this.secondArg = secondArg;
+        this.firstArg_Str = firstArg;
+        this.secondArg_Str = secondArg;
     }
 
     public short getOPCode() {
@@ -41,24 +43,73 @@ public class OPPackage{
         this.OPCode = OPCode;
     }
 
-    public String getFirstArg() {
-        return firstArg;
+    public short getFirstArg_Short() {
+        return firstArg_Short;
     }
 
-    public void setFirstArg(String firstArg) {
-        this.firstArg = firstArg;
+    public void setFirstArg_Short(short firstArg_Short) {
+        this.firstArg_Short = firstArg_Short;
     }
 
-    public String getSecondArg() {
-        return secondArg;
+    public String getFirstArg_Str() {
+        return firstArg_Str;
     }
 
-    public void setSecondArg(String secondArg) {
-        this.secondArg = secondArg;
+    public void setFirstArg_Str(String firstArg_Str) {
+        this.firstArg_Str = firstArg_Str;
     }
 
+    public String getSecondArg_Str() {
+        return secondArg_Str;
+    }
+
+    public void setSecondArg_Str(String secondArg_Str) {
+        this.secondArg_Str = secondArg_Str;
+    }
+    public boolean isFirstArg_Str_HasVal(){
+        return !firstArg_Str.isEmpty();
+    }
+    public boolean isSecondArg_Str_HasVal(){
+        return !secondArg_Str.isEmpty();
+    }
+    public boolean isFirstArg_Short_HasVal(){
+        return !(firstArg_Short == 0);
+    }
     //This method performs clone, but have a better name ;)
     public OPPackage mitosis(){
-        return new OPPackage(OPCode,firstArg,secondArg);
+        return new OPPackage(OPCode,firstArg_Short,firstArg_Str,secondArg_Str);
+    }
+
+    public boolean isValid() {
+        if(OPCode == 0)
+            return false;
+        if (getOPCode() == OP_ADMIN_REGISTER) {
+            return isFirstArg_Str_HasVal() & isSecondArg_Str_HasVal();
+        } else if (getOPCode() == OP_STUDENT_REGISTER) {
+            return isFirstArg_Str_HasVal() & isSecondArg_Str_HasVal();
+        } else if (getOPCode() == OP_LOGIN_REQUEST) {
+            return isFirstArg_Str_HasVal() & isSecondArg_Str_HasVal();
+        } else if (getOPCode() == OP_LOGOUT_REQUEST) {
+            return true;
+        } else if (getOPCode() == OP_REGISTER_COURSE) {
+            return isFirstArg_Short_HasVal();
+        } else if (getOPCode() == OP_CHECK_KDAM) {
+            return isFirstArg_Short_HasVal();
+        } else if (getOPCode() == OP_A_COURSE_STAT) {
+            return isFirstArg_Short_HasVal();
+        } else if (getOPCode() == OP_A_STUDENT_STAT) {
+            return isFirstArg_Str_HasVal();
+        } else if (getOPCode() == OP_CHECK_REGISTERED) {
+            return isFirstArg_Short_HasVal();
+        } else if (getOPCode() == OP_UNREGISTER_COURSE) {
+            return isFirstArg_Short_HasVal();
+        } else if (getOPCode() == OP_CHECK_MY_COURSES) {
+            return true;
+        } else if (getOPCode() == OP_ACK) {
+            return isFirstArg_Short_HasVal();
+        } else if (getOPCode() == OP_ERROR) {
+            return isFirstArg_Short_HasVal();
+        }
+        return false;
     }
 }
