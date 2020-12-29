@@ -25,12 +25,14 @@ public class OPPackage{
 
     public OPPackage() {
         this.OPCode = 0;
+        this.firstArg_Short = 0;
         this.firstArg_Str = "";
         this.secondArg_Str = "";
     }
 
     public OPPackage(short OPCode, short firstArg_Short,String firstArg, String secondArg) {
         this.OPCode = OPCode;
+        this.firstArg_Short = firstArg_Short;
         this.firstArg_Str = firstArg;
         this.secondArg_Str = secondArg;
     }
