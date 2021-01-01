@@ -7,7 +7,7 @@ import bgu.spl.net.impl.user.UserProtocol;
 
 public class main {
     public static void main(String[] args) {
-        if(!Database.getInstance().initialize("./Courses.txt")) {
+        if(Database.getInstance().initialize("./Courses.txt")) {
             Reactor<OPPackage> server = new Reactor<>(Integer.decode(args[1]), Integer.decode(args[0]),
                     () -> new UserProtocol(),
                     () -> new OPPackageMessageEncoderDecoder());

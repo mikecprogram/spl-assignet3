@@ -2,6 +2,7 @@ package bgu.spl.net.impl.user;
 
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -15,7 +16,7 @@ public class Database {
     private ConcurrentHashMap<String, String> students_userNamesPassWords_Table;
     private ConcurrentHashMap<String, String> admin_userNamesPassWords_Table;
     private HashMap<Short, Course> courses;
-    private short[] coursesFileOrder;
+    private ArrayList<Short> coursesFileOrder;
     private ConcurrentHashMap<Short, ConcurrentSkipListSet<String>> courses_to_students;
 
     //to prevent user from creating new Database
@@ -25,6 +26,7 @@ public class Database {
         courses_to_students = new ConcurrentHashMap<>();
         connected_users = new ConcurrentSkipListSet<>();
         courses = new HashMap<>();
+        coursesFileOrder = new ArrayList<>();
     }
 
     /**
@@ -41,19 +43,18 @@ public class Database {
      * into the Database, returns true if successful.
      */
     public boolean initialize(String coursesFilePath) {
-        try (Stream<String> stream = Files.lines(Paths.get(coursesFilePath))) {
-            int countOfLines = (int) stream.count();
-            coursesFileOrder = new short[countOfLines];
-            Iterator<String> streamIterator = stream.iterator();
-            int position = 0;
-            while (streamIterator.hasNext()) {
-                String str = streamIterator.next();
+
+        try (Scanner reader = new Scanner(Paths.get(coursesFilePath))) {
+
+            while (reader.hasNext()) {
+                String str = reader.nextLine();
                 Course c = new Course(str);
                 courses.put(c.getCourseNumber(), c);
                 courses_to_students.put(c.getCourseNumber(), new ConcurrentSkipListSet<>());
-                coursesFileOrder[position++] = c.getCourseNumber();
+                coursesFileOrder.add(c.getCourseNumber());
             }
         } catch (IOException e) {
+            System.out.println(e.toString());
             return false;
         }
         return true;

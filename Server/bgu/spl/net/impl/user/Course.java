@@ -12,7 +12,7 @@ public class Course {
         courseName = args[1];
 
         String kdamCourses_str = args[2];
-        kdamCourses_str = kdamCourses_str.substring(1, kdamCourses_str.length() - 2);
+        kdamCourses_str = kdamCourses_str.substring(1, kdamCourses_str.length() - 1);
         if (!kdamCourses_str.trim().isEmpty()) {
             String[] kdamCourses_strArray = kdamCourses_str.split(",");
             kdamCoursesList = new short[kdamCourses_strArray.length];
