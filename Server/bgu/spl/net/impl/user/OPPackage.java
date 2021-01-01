@@ -33,8 +33,14 @@ public class OPPackage{
     public OPPackage(short OPCode, short firstArg_Short,String firstArg, String secondArg) {
         this.OPCode = OPCode;
         this.firstArg_Short = firstArg_Short;
-        this.firstArg_Str = firstArg;
-        this.secondArg_Str = secondArg;
+        if (!(firstArg == null))
+            this.firstArg_Str = firstArg;
+        else
+            this.firstArg_Str = "";
+        if (!(secondArg == null))
+            this.secondArg_Str = secondArg;
+        else
+            this.secondArg_Str = "";
     }
 
     public short getOPCode() {

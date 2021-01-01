@@ -18,6 +18,7 @@ public class OPPackageMessageEncoderDecoder implements MessageEncoderDecoder<OPP
         //notice that the top 128 ascii characters have the same representation as their utf-8 counterparts
         //this allow us to do the following comparison
         pushByte(nextByte);
+        System.out.println("oh look a byte " + nextByte);
 
         if (len == 2) {
             //OP CODE

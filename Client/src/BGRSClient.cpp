@@ -20,6 +20,7 @@ public:
             std::cerr << "Cannot connect to host." << std::endl;
             return false;
         }
+        std::cout << "Connected." << std::endl;
         return true;
     }
 
@@ -37,7 +38,6 @@ public:
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
                 break;
             }
-            std::cout << "Sent " << len << " bytes to server" << std::endl;
         }
     }
 
@@ -54,7 +54,7 @@ public:
             if (msg == "ACK 4") {
                 std::cout << "Exiting...\n" << std::endl;
                 running = false;
-                break;
+                return;
             }
         }
     }
