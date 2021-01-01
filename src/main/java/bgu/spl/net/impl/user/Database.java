@@ -1,9 +1,13 @@
 package bgu.spl.net.impl.user;
 
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Stream;
 
 public class Database {
     private static Database singleton;
@@ -36,25 +40,23 @@ public class Database {
      * loades the courses from the file path specified
      * into the Database, returns true if successful.
      */
-    boolean initialize(String coursesFilePath) {
-        try {
-            String file = "342|How to Train Your Dragon|[443,2,432,839]|25\n" +
-                    "2|First Kdam Course|[]|7\n" +
-                    "443|Second Kdam Course|[]|7\n" +
-                    "432|Third Kdam Course|[]|7\n" +
-                    "839|Fourth Kdam Course|[]|7";
-            String[] courses_StringArray = file.split("\n");
-            coursesFileOrder = new short[courses_StringArray.length];
-            for (int i = 0; i < courses_StringArray.length; i++) {
-                Course c = new Course(courses_StringArray[i]);
+    public boolean initialize(String coursesFilePath) {
+        try (Stream<String> stream = Files.lines(Paths.get(coursesFilePath))) {
+            int countOfLines = (int) stream.count();
+            coursesFileOrder = new short[countOfLines];
+            Iterator<String> streamIterator = stream.iterator();
+            int position = 0;
+            while (streamIterator.hasNext()) {
+                String str = streamIterator.next();
+                Course c = new Course(str);
                 courses.put(c.getCourseNumber(), c);
                 courses_to_students.put(c.getCourseNumber(), new ConcurrentSkipListSet<>());
-                coursesFileOrder[i] = c.getCourseNumber();
+                coursesFileOrder[position++] = c.getCourseNumber();
             }
-            return true;
-        } catch (Exception e) {
+        } catch (IOException e) {
             return false;
         }
+        return true;
     }
 
     private boolean isUsernameExistInDatabase(String Username) {
@@ -68,11 +70,11 @@ public class Database {
             admin_userNamesPassWords_Table.put(Username, Password);
             return;
         }
-       throw new Exception("User " + Username + " is already registered");
+        throw new Exception("User " + Username + " is already registered");
     }
 
 
-    public void registerStudent(String Username, String Password) throws Exception{
+    public void registerStudent(String Username, String Password) throws Exception {
         if (!isUsernameExistInDatabase(Username)) {
             students_userNamesPassWords_Table.put(Username, Password);
             return;
@@ -80,7 +82,7 @@ public class Database {
         throw new Exception("User " + Username + " is already registered");
     }
 
-    public Rule login(String Username, String Password) throws Exception{
+    public Rule login(String Username, String Password) throws Exception {
         if (connected_users.contains(Username))
             throw new Exception("Username " + Username + " is logged in currently");
         if (admin_userNamesPassWords_Table.getOrDefault(Username, null).equals(Password))
@@ -138,48 +140,52 @@ public class Database {
     public String checkKdam(short courseNumber) {
         return Arrays.toString(courses.get(courseNumber).getKdamCoursesList());
     }
-    public String admin_courseStats(short courseNumber) throws Exception{
-        if(!courses.containsKey(courseNumber)) {
+
+    public String admin_courseStats(short courseNumber) throws Exception {
+        if (!courses.containsKey(courseNumber)) {
             throw new Exception("There are no stats for the course " + courseNumber +
                     " as it does not exist");
         }
         Course c = courses.get(courseNumber);
         int seatsTaken = courses_to_students.get(courseNumber).size();
         String registeredStudents = courses_to_students.get(courseNumber).toString();
-        return "Course: (" + courseNumber+ ") "+c.getCourseName()+"\n"+
-                "Seats Available: " + (c.getNumOfMaxStudents()-seatsTaken) + "/" + c.getNumOfMaxStudents()+"\n"+
+        return "Course: (" + courseNumber + ") " + c.getCourseName() + "\n" +
+                "Seats Available: " + (c.getNumOfMaxStudents() - seatsTaken) + "/" + c.getNumOfMaxStudents() + "\n" +
                 "Students Registered: " + registeredStudents;
     }
-    public String admin_studentStats(String username) throws Exception{
-        if(admin_userNamesPassWords_Table.containsKey(username))
+
+    public String admin_studentStats(String username) throws Exception {
+        if (admin_userNamesPassWords_Table.containsKey(username))
             throw new Exception("There are no stats for the student " + username +
                     " because it is an admin");
-        if(!students_userNamesPassWords_Table.containsKey(username))
+        if (!students_userNamesPassWords_Table.containsKey(username))
             throw new Exception("There are no stats for the student " + username +
-                " as it is not registered");
+                    " as it is not registered");
 
-        return "Student: " + username + "\n"+
-                "Courses: " +getStudentCourses(username);
+        return "Student: " + username + "\n" +
+                "Courses: " + getStudentCourses(username);
     }
-    public boolean isRegistered(String username,short courseNumber) throws Exception{
-        if(admin_userNamesPassWords_Table.containsKey(username))
-            throw new Exception("The username "+username+" belongs to an admin");
-        if(!students_userNamesPassWords_Table.containsKey(username))
-            throw new Exception("The user "+username+" is not registered");
-        if(!courses_to_students.containsKey(courseNumber))
+
+    public boolean isRegistered(String username, short courseNumber) throws Exception {
+        if (admin_userNamesPassWords_Table.containsKey(username))
+            throw new Exception("The username " + username + " belongs to an admin");
+        if (!students_userNamesPassWords_Table.containsKey(username))
+            throw new Exception("The user " + username + " is not registered");
+        if (!courses_to_students.containsKey(courseNumber))
             throw new Exception("Course " + courseNumber + " does not exist.");
         return courses_to_students.get(courseNumber).contains(username);
     }
-    public void unregister(String username,short courseNumber) throws Exception{
-        if(isRegistered(username,courseNumber)){
+
+    public void unregister(String username, short courseNumber) throws Exception {
+        if (isRegistered(username, courseNumber)) {
             courses_to_students.get(courseNumber).remove(username);
         }
     }
-    public String getStudentCourses(String username){
+
+    public String getStudentCourses(String username) {
         List<Short> students_courses = new ArrayList<>();
-        for(short course: coursesFileOrder)
-        {
-            if(courses_to_students.get(course).contains(username))
+        for (short course : coursesFileOrder) {
+            if (courses_to_students.get(course).contains(username))
                 students_courses.add(course);
         }
         return students_courses.toString();
