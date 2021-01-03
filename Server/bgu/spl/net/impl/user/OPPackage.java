@@ -24,20 +24,17 @@ public class OPPackage{
     private String secondArg_Str;
 
     public OPPackage() {
-        this.OPCode = 0;
-        this.firstArg_Short = 0;
-        this.firstArg_Str = "";
-        this.secondArg_Str = "";
+        clear();
     }
 
     public OPPackage(short OPCode, short firstArg_Short,String firstArg, String secondArg) {
         this.OPCode = OPCode;
         this.firstArg_Short = firstArg_Short;
-        if (!(firstArg == null))
+        if (firstArg != null)
             this.firstArg_Str = firstArg;
         else
             this.firstArg_Str = "";
-        if (!(secondArg == null))
+        if (secondArg != null)
             this.secondArg_Str = secondArg;
         else
             this.secondArg_Str = "";
@@ -114,10 +111,20 @@ public class OPPackage{
         } else if (getOPCode() == OP_CHECK_MY_COURSES) {
             return true;
         } else if (getOPCode() == OP_ACK) {
-            return isFirstArg_Short_HasVal();
+            return true;
         } else if (getOPCode() == OP_ERROR) {
-            return isFirstArg_Short_HasVal();
+            return true;
         }
         return false;
+    }
+
+    public void clear() {
+        this.OPCode = 0;
+        this.firstArg_Short = 0;
+        this.firstArg_Str = "";
+        this.secondArg_Str = "";
+    }
+    public boolean needString(){
+        return OPCode == OP_ADMIN_REGISTER | OPCode == OP_STUDENT_REGISTER | OPCode == OP_LOGIN_REQUEST | OPCode == OP_A_STUDENT_STAT;
     }
 }

@@ -23,7 +23,7 @@ public class UserProtocol implements MessagingProtocol<OPPackage> {
                 userName = packet.getFirstArg_Str();
             } else if (packet.getOPCode() == packet.OP_LOGOUT_REQUEST) {
                 shouldTerminate = true;
-                db.logout(packet.getFirstArg_Str());
+                db.logout(userName);
                 rule = Rule.None;
                 userName = "";
             } else if (packet.getOPCode() == packet.OP_REGISTER_COURSE) {
@@ -40,7 +40,7 @@ public class UserProtocol implements MessagingProtocol<OPPackage> {
                     throw new Exception("No admin is connected.");
             } else if (packet.getOPCode() == packet.OP_A_STUDENT_STAT) {
                 if (rule == Rule.Admin)
-                    db.admin_studentStats(packet.getFirstArg_Str());
+                    result = db.admin_studentStats(packet.getFirstArg_Str());
                 else
                     throw new Exception("No admin is connected.");
             } else if (packet.getOPCode() == packet.OP_CHECK_REGISTERED) {
@@ -58,7 +58,7 @@ public class UserProtocol implements MessagingProtocol<OPPackage> {
                     throw new Exception("No student is connected.");
             } else if (packet.getOPCode() == packet.OP_CHECK_MY_COURSES) {
                 if (rule == Rule.Student) {
-                    result = db.getStudentCourses(packet.getFirstArg_Str());
+                    result = db.getStudentCourses(userName);
                 } else
                     throw new Exception("No student is connected.");
             } else if (packet.getOPCode() == packet.OP_ACK) {
@@ -69,18 +69,11 @@ public class UserProtocol implements MessagingProtocol<OPPackage> {
                 throw new IllegalStateException("Unexpected value: " + packet.getOPCode());
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            //DEBUG: System.out.println("Debug->"+e.getMessage());
             return new OPPackage(packet.OP_ERROR, packet.getOPCode(), null, null);
         }
         return new OPPackage(packet.OP_ACK, packet.getOPCode(), result,"");
-        //shouldTerminate = "bye".equals(packet.getFirstArg());
-        //System.out.println("[" + LocalDateTime.now() + "]: " + msg);
     }
-
-    /*private String createEcho(String message) {
-        String echoPart = message.substring(Math.max(message.length() - 2, 0), message.length());
-        return message + " .. " + echoPart + " .. " + echoPart + " ..";
-    }*/
 
     @Override
     public boolean shouldTerminate() {

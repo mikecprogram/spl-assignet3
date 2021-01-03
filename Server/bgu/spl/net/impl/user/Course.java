@@ -55,4 +55,8 @@ public class Course {
         }
         return true;
     }
+
+    public boolean haveKdams() {
+        return kdamCoursesList.length > 0;
+    }
 }

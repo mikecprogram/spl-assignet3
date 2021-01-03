@@ -2,13 +2,10 @@ package bgu.spl.net.impl.user;
 
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.stream.Stream;
 
 public class Database {
     private static Database singleton;
@@ -86,11 +83,21 @@ public class Database {
     public Rule login(String Username, String Password) throws Exception {
         if (connected_users.contains(Username))
             throw new Exception("Username " + Username + " is logged in currently");
-        if (admin_userNamesPassWords_Table.getOrDefault(Username, null).equals(Password))
-            return Rule.Admin;
-        else if (students_userNamesPassWords_Table.getOrDefault(Username, null).equals(Password))
-            return Rule.Student;
+        if (admin_userNamesPassWords_Table.containsKey(Username)) {
+            if (admin_userNamesPassWords_Table.get(Username).equals(Password)) {
+                connectUser(Username);
+                return Rule.Admin;
+            }
+        } else if (students_userNamesPassWords_Table.containsKey(Username))
+            if (students_userNamesPassWords_Table.get(Username).equals(Password)) {
+                connectUser(Username);
+                return Rule.Student;
+            }
         throw new Exception("Username " + Username + " is not registered yet");
+    }
+
+    private void connectUser(String username) {
+        connected_users.add(username);
     }
 
     public void logout(String Username) throws Exception {
@@ -114,9 +121,16 @@ public class Database {
                         "registered to course " + courseNumber);
             Course course = courses.get(courseNumber);
             LinkedList<Short> kdamCourses = new LinkedList<>();
-            for (short kdam : course.getKdamCoursesList())
-                if (!courses_to_students.get(kdam).contains(username))
-                    kdamCourses.push(kdam);
+            for (short kdam : course.getKdamCoursesList()) {
+                ConcurrentSkipListSet<String> registeredStudentsToCourse = courses_to_students.get(kdam);
+                if(registeredStudentsToCourse != null) {
+                    if (!registeredStudentsToCourse.contains(username))
+                        kdamCourses.push(kdam);
+                }else{
+                    throw new Exception("Kdam Course " + kdam + " does not exist.");
+                }
+
+            }
             if (!kdamCourses.isEmpty()) {
                 if (kdamCourses.size() == 1)
                     throw new Exception("not registered to " + kdamCourses.pop() +
@@ -138,8 +152,14 @@ public class Database {
 
     }
 
-    public String checkKdam(short courseNumber) {
-        return Arrays.toString(courses.get(courseNumber).getKdamCoursesList());
+    public String checkKdam(short courseNumber) throws Exception {
+        if (courses.containsKey(courseNumber))
+            if (courses.get(courseNumber).haveKdams())
+                return Arrays.toString(courses.get(courseNumber).getKdamCoursesList());
+            else
+                return "[]";
+        else
+            throw new Exception("Course " + courseNumber + " does not exist.");
     }
 
     public String admin_courseStats(short courseNumber) throws Exception {
@@ -180,13 +200,16 @@ public class Database {
     public void unregister(String username, short courseNumber) throws Exception {
         if (isRegistered(username, courseNumber)) {
             courses_to_students.get(courseNumber).remove(username);
+        }else {
+            throw new Exception("Student is not registered to course " + courseNumber);
         }
     }
 
     public String getStudentCourses(String username) {
         List<Short> students_courses = new ArrayList<>();
         for (short course : coursesFileOrder) {
-            if (courses_to_students.get(course).contains(username))
+            ConcurrentSkipListSet<String> students = courses_to_students.get(course);
+            if(students.contains(username))
                 students_courses.add(course);
         }
         return students_courses.toString();

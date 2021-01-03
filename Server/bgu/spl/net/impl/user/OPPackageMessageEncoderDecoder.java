@@ -18,7 +18,6 @@ public class OPPackageMessageEncoderDecoder implements MessageEncoderDecoder<OPP
         //notice that the top 128 ascii characters have the same representation as their utf-8 counterparts
         //this allow us to do the following comparison
         pushByte(nextByte);
-        System.out.println("oh look a byte " + nextByte);
 
         if (len == 2) {
             //OP CODE
@@ -29,7 +28,7 @@ public class OPPackageMessageEncoderDecoder implements MessageEncoderDecoder<OPP
                 tempPackage.setFirstArg_Short(getAsShort());
             }
         }
-        if (nextByte == '\0') {
+        if (nextByte == '\0' && tempPackage.needString()) {
             switch (arg) {
                 case 1:
                     tempPackage.setFirstArg_Str(popString());
@@ -46,6 +45,7 @@ public class OPPackageMessageEncoderDecoder implements MessageEncoderDecoder<OPP
         }
         return null; //not an OOPackage yet
     }
+
 
 
     @Override
@@ -100,12 +100,17 @@ public class OPPackageMessageEncoderDecoder implements MessageEncoderDecoder<OPP
     private String popString() {
         //notice that we explicitly requesting that the string will be decoded from UTF-8
         //this is not actually required as it is the default encoding in java.
+        len--;//In order to not get the \0
         String result = new String(bytes, 0, len, StandardCharsets.UTF_8);
         len = 0;
         return result;
     }
 
     private OPPackage popOOPackage() {
-        return tempPackage.mitosis();
+        OPPackage mitosed = tempPackage.mitosis();
+        tempPackage.clear();
+        len =0;
+        arg = 0;
+        return mitosed;
     }
 }

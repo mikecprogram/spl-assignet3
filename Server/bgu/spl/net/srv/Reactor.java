@@ -56,7 +56,6 @@ public class Reactor<T> implements Server<T> {
                 for (SelectionKey key : selector.selectedKeys()) {
 
                     if (!key.isValid()) {
-                        continue;
                     } else if (key.isAcceptable()) {
                         handleAccept(serverSock, selector);
                     } else {
