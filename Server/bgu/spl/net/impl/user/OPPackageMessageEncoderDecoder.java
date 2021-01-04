@@ -51,13 +51,12 @@ public class OPPackageMessageEncoderDecoder implements MessageEncoderDecoder<OPP
     @Override
     public byte[] encode(OPPackage packet) {
         byte[] result = shortToBytes(packet.getOPCode());
+        result = merge(result, shortToBytes(packet.getFirstArg_Short()));
         if (packet.isFirstArg_Str_HasVal()) {
             result = merge(result, (packet.getFirstArg_Str() + '\0').getBytes());
             if (packet.isSecondArg_Str_HasVal()) {
                 result = merge(result, (packet.getSecondArg_Str() + '\0').getBytes());
             }
-        } else if (packet.isFirstArg_Short_HasVal()) {
-            result = merge(result, shortToBytes(packet.getFirstArg_Short()));
         }
         return result;
     }

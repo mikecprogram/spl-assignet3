@@ -1,0 +1,29 @@
+
+Assignet 3 testing doc:
+
+case (command)
+
+1STUDENTREG: 2ADMINREG: both work!
+
+3LOGIN: 4LOGOUT: works
+Connecting to a user registered in a different session also works
+
+5COURSEREG (S): works
+Tested both for student and admin
+
+6KDAMCHECK: encode didn't work correctly with string responses, fixed it now.
+Reply should be [0, 12, 0, 6, 91, 93, 0] #(91 = '[', 93 = ']')
+Was [0, 12, 91, 93, 0]
+Works when not logged in, not sure if intended
+
+7COURSESTAT (A): ok!
+Tested as both student and admin
+
+8STUDENTSTAT (A): ok!
+Tested both
+
+9ISREGISTERED (S): ok!
+
+10UNREGISTER (S): ok!
+
+11MYCOURSES (S): works, and helped me find a bug in client

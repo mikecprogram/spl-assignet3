@@ -16,7 +16,7 @@ private:
 
 
 public:
-    Protocol() {}
+    Protocol() = default;
     std::vector<char> commandParser(std::string content) {
         short opcode = 0;
         std::vector<char> op;
@@ -42,7 +42,7 @@ public:
         opcode = op_codes[std::string(op.begin(), op.end())];
         if (opcode == 0) {
             std::cerr << "Invalid operation: " << std::string(op.begin(), op.end()) << "\n";
-            return op;
+            return {};
         }
         std::vector<char> op_arr;
         op_arr.push_back((opcode >> 8) & 0xFF);
@@ -53,37 +53,31 @@ public:
             case 1:
             case 2:
             case 3:
-            case 8:
+            case 8: {
                 args.push_back(0);
                 op_arr.insert(op_arr.end(), args.begin(), args.end());
                 break;
-            case 4:
-                break;
-            default:
+            }
+            case 5:
+            case 7:
+            case 9:
+            case 10: {
                 std::string a = std::string(args.begin(), args.end());
                 short c = boost::lexical_cast<short>(a);
                 op_arr.push_back((c >> 8) & 0xFF);
                 op_arr.push_back(c & 0xFF);
                 break;
+            }
+            case 4:
+            case 11:
+            default:
+                break;
         }
         return op_arr;
     }
 
-    std::string replyParser(std::string content){
-        short result = bytesToShort(content.substr(0, 2));
-        short op = bytesToShort(content.substr(2, 4));
 
-        std::stringstream ss;;
-        if (result == 12)
-            ss << "ACK ";
-        if (result == 13)
-            ss << "ERROR ";
-        ss << op << " ";
-        ss << content.substr(4);
-        return ss.str();
-    }
-
-    short bytesToShort(std::string bytesArr)
+    short bytesToShort(char bytesArr[])
     {
         short result = (short)((bytesArr[0] & 0xff) << 8);
         result += (short)(bytesArr[1] & 0xff);
