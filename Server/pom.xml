@@ -3,9 +3,6 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>bgu.spl</groupId>
     <artifactId>spl-net</artifactId>
-    <configuration>
-        <mainClass>bgu.spl.net.srv.ReactorMain</mainClass>
-    </configuration>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
