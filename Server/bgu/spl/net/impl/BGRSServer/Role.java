@@ -1,4 +1,4 @@
-package bgu.spl.net.impl.user;
+package bgu.spl.net.impl.BGRSServer;
 
 /**
  * Passive object representing the Database where all courses and users are stored.

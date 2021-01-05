@@ -1,9 +1,10 @@
-package bgu.spl.net.srv;
+package bgu.spl.net.impl.BGRSServer;
 
-import bgu.spl.net.impl.user.Database;
-import bgu.spl.net.impl.user.OPPackage;
-import bgu.spl.net.impl.user.OPPackageMessageEncoderDecoder;
-import bgu.spl.net.impl.user.UserProtocol;
+import bgu.spl.net.impl.BGRSServer.Database;
+import bgu.spl.net.impl.BGRSServer.OPPackage;
+import bgu.spl.net.impl.BGRSServer.OPPackageMessageEncoderDecoder;
+import bgu.spl.net.impl.BGRSServer.UserProtocol;
+import bgu.spl.net.srv.Reactor;
 
 public class ReactorMain {
     public static void main(String[] args) {

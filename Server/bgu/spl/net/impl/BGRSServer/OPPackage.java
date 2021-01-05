@@ -1,4 +1,4 @@
-package bgu.spl.net.impl.user;
+package bgu.spl.net.impl.BGRSServer;
 
 public class OPPackage{
     //These codes are here because they are being used only with OPPackage.
