@@ -9,4 +9,4 @@ package bgu.spl.net.impl.user;
  * You can add private fields and methods to this class as you see fit.
  */
 
-public enum Rule {Student, Admin,None}
+public enum Role {Student, Admin,None}

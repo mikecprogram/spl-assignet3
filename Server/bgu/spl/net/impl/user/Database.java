@@ -80,18 +80,18 @@ public class Database {
         throw new Exception("User " + Username + " is already registered");
     }
 
-    public Rule login(String Username, String Password) throws Exception {
+    public Role login(String Username, String Password) throws Exception {
         if (connected_users.contains(Username))
             throw new Exception("Username " + Username + " is logged in currently");
         if (admin_userNamesPassWords_Table.containsKey(Username)) {
             if (admin_userNamesPassWords_Table.get(Username).equals(Password)) {
                 connectUser(Username);
-                return Rule.Admin;
+                return Role.Admin;
             }
         } else if (students_userNamesPassWords_Table.containsKey(Username))
             if (students_userNamesPassWords_Table.get(Username).equals(Password)) {
                 connectUser(Username);
-                return Rule.Student;
+                return Role.Student;
             }
         throw new Exception("Username " + Username + " is not registered yet");
     }

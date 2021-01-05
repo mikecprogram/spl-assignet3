@@ -5,7 +5,7 @@ import bgu.spl.net.impl.user.OPPackage;
 import bgu.spl.net.impl.user.OPPackageMessageEncoderDecoder;
 import bgu.spl.net.impl.user.UserProtocol;
 
-public class main {
+public class ReactorMain {
     public static void main(String[] args) {
         if(Database.getInstance().initialize("./Courses.txt")) {
             Reactor<OPPackage> server = new Reactor<>(Integer.decode(args[1]), Integer.decode(args[0]),

@@ -6,7 +6,7 @@ import bgu.spl.net.api.MessagingProtocol;
 public class UserProtocol implements MessagingProtocol<OPPackage> {
     private boolean shouldTerminate = false;
     private String userName = "";
-    private Rule rule = Rule.None;
+    private Role role = Role.None;
 
     @Override
     public OPPackage process(OPPackage packet) {
@@ -15,49 +15,66 @@ public class UserProtocol implements MessagingProtocol<OPPackage> {
         String result = "";
         try {
             if (packet.getOPCode() == packet.OP_ADMIN_REGISTER) {
-                db.registerAdmin(packet.getFirstArg_Str(), packet.getSecondArg_Str());
+                if (role == Role.None)
+                    db.registerAdmin(packet.getFirstArg_Str(), packet.getSecondArg_Str());
+                else
+                    throw new Exception("Client already logged in.");
             } else if (packet.getOPCode() == packet.OP_STUDENT_REGISTER) {
-                db.registerStudent(packet.getFirstArg_Str(), packet.getSecondArg_Str());
+                if (role == Role.None)
+                    db.registerStudent(packet.getFirstArg_Str(), packet.getSecondArg_Str());
+                else
+                    throw new Exception("Client already logged in.");
             } else if (packet.getOPCode() == packet.OP_LOGIN_REQUEST) {
-                rule = db.login(packet.getFirstArg_Str(), packet.getSecondArg_Str());
-                userName = packet.getFirstArg_Str();
+                if (role == Role.None) {
+                    role = db.login(packet.getFirstArg_Str(), packet.getSecondArg_Str());
+                    userName = packet.getFirstArg_Str();
+                }
+                else
+                    throw new Exception("Client already logged in.");
             } else if (packet.getOPCode() == packet.OP_LOGOUT_REQUEST) {
-                shouldTerminate = true;
-                db.logout(userName);
-                rule = Rule.None;
-                userName = "";
+                if (!(role == Role.None)) {
+                    shouldTerminate = true;
+                    db.logout(userName);
+                    role = Role.None;
+                    userName = "";
+                }
+                else
+                    throw new Exception("Client not logged in.");
             } else if (packet.getOPCode() == packet.OP_REGISTER_COURSE) {
-                if (rule == Rule.Student)
+                if (role == Role.Student)
                     db.registerToCourse(userName, packet.getFirstArg_Short());
                 else
-                    throw new Exception("No student is connected.");
+                    throw new Exception("Not connected as students.");
             } else if (packet.getOPCode() == packet.OP_CHECK_KDAM) {
-                result = db.checkKdam(packet.getFirstArg_Short());
+                if (!(role == Role.None))
+                    result = db.checkKdam(packet.getFirstArg_Short());
+                else
+                    throw new Exception("Not logged in.");
             } else if (packet.getOPCode() == packet.OP_A_COURSE_STAT) {
-                if (rule == Rule.Admin)
+                if (role == Role.Admin)
                     result = db.admin_courseStats(packet.getFirstArg_Short());
                 else
-                    throw new Exception("No admin is connected.");
+                    throw new Exception("Not connected as admin.");
             } else if (packet.getOPCode() == packet.OP_A_STUDENT_STAT) {
-                if (rule == Rule.Admin)
+                if (role == Role.Admin)
                     result = db.admin_studentStats(packet.getFirstArg_Str());
                 else
-                    throw new Exception("No admin is connected.");
+                    throw new Exception("Not connected as admin.");
             } else if (packet.getOPCode() == packet.OP_CHECK_REGISTERED) {
-                if (rule == Rule.Student)
+                if (role == Role.Student)
                     if (db.isRegistered(userName, packet.getFirstArg_Short()))
                         result = "REGISTERED";
                     else
                         result = "NOT REGISTERED";
                 else
-                    throw new Exception("No student is connected.");
+                    throw new Exception("Not connected as student.");
             } else if (packet.getOPCode() == packet.OP_UNREGISTER_COURSE) {
-                if (rule == Rule.Student)
+                if (role == Role.Student)
                     db.unregister(userName, packet.getFirstArg_Short());
                 else
-                    throw new Exception("No student is connected.");
+                    throw new Exception("Not connected as student.");
             } else if (packet.getOPCode() == packet.OP_CHECK_MY_COURSES) {
-                if (rule == Rule.Student) {
+                if (role == Role.Student) {
                     result = db.getStudentCourses(userName);
                 } else
                     throw new Exception("No student is connected.");
